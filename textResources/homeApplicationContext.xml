@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- Optional for most deployments. Use if your deployment has multiple HomeConfiguration plugins.
+	  Sets the configuration priority. A value of 0 is used if this is not 
+		present. The configuration with the highest priority is used. -->   			
+	<bean id="priority" class="java.lang.Integer" >
+		<constructor-arg value="100" type="int"/>
+	</bean>
+
+	<!-- Required. Sets the frontend timeout for Search in milliseconds. -->   			
+	<bean id="searchTimeout" class="java.lang.Integer" >
+		<constructor-arg value="300000" type="int"/>
+	</bean>
+    
+	<!-- Required. If true, then the "Doc Search" button is hidden in the Browser. -->
+    <bean id="disableDocSearch" class="java.lang.Boolean" >
+		<constructor-arg value="false" type="boolean"/>
+	</bean>
+        
+	<!-- Required. Sets the page size for Search. -->   			
+	<bean id="pageSize" class="java.lang.Integer" >
+		<constructor-arg value="20" type="int"/>
+	</bean>
+	
+	<!-- Optional. Sets the width of the search results page. -->   			
+	<bean id="searchResultsWidth" class="java.lang.Integer" >
+		<constructor-arg value="595" type="int"/>
+	</bean>
+	
+	<!--  Required. Two beans are required to set the default renderer and preview classes for results 
+			that do not match any rich type. Use "otherResultRendererFactory" to set the result renderer and 
+			"otherPreviewFactory" to set the pop up preview.
+	     
+	    The renderer bean has both an ID and a name so that the class can be reused without 
+	    calling it "otherResultRendererFactory". The font size and line count settings in this 
+	    bean control the look of all renderers that use this class.
+	    -->
+	<bean id="resultFactory" name="otherResultRendererFactory" class="com.palantir.workspace.home.search.CustomRendererFactory">
+		<!-- titleFontSize sets the modifier of the font size relative to the Workspace font
+			 size setting. A value of 0 means use the default font size. Use values between -1 and 4. -->
+		<property name="titleFontSize" value="1"/>
+		
+		<!-- titleLineCount sets the number of lines to display in the title before truncating. Use values between 1 and 4. -->
+		<property name="titleLineCount" value="1"/>
+		
+		<!-- titlesAreLinks turns the result titles into clickable links that open the result in a 
+			 new tab. This property is optional and defaults to false. -->
+		<property name="titlesAreLinks" value="false"/>
+	</bean>
+
+	<!-- Required.  Sets the default preview for results that do not match a rich type. -->	
+	<bean id="otherPreviewFactory" class="com.palantir.workspace.home.search.DefaultPreviewFactory"/>
+	
+	<!-- Optional. If true, then "other" rich type previews show discovery messages. -->
+ 	<bean id="showOtherDiscoveryResults" class="java.lang.Boolean" >
+		<constructor-arg value="false" type="boolean"/>
+	</bean>
+
+	<bean id="company" class="com.palantir.workspace.home.PalantirRichTypeFactory" >
+		<property name="priority" value="70"/>
+		<property name="richType">
+			<bean class="com.palantir.workspace.home.search.SimpleRichTypeFactory" >
+				<property name="uri" value="movies"/>
+				<property name="name" value="Movies"/>
+				<property name="description" value="All Movies"/>
+				<property name="iconPath" value="images/richtype/movie.png"/>
+				<property name="showDiscoveryResults" value="false"/>
+				<property name="resultRendererFactory" ref="resultFactory"/>
+				<property name="filterText">
+					<value>OBJECT_TYPE_MATCH com.palantir.object.Movie false</value>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="field" class="com.palantir.workspace.home.PalantirRichTypeFactory" >
+		<property name="priority" value="60"/>
+		<property name="richType">
+			<bean class="com.palantir.workspace.home.search.SimpleRichTypeFactory" >
+				<property name="uri" value="actors"/>
+				<property name="name" value="Actors"/>
+				<property name="description" value="All Actors"/>
+				<property name="iconPath" value="images/richtype/actor.png"/>
+				<property name="showDiscoveryResults" value="false"/>
+				<property name="resultRendererFactory" ref="resultFactory"/>
+				<property name="filterText">
+					<value>OBJECT_TYPE_MATCH com.palantir.object.Actor false</value>
+				</property>
+			</bean>
+		</property>
+	</bean>
+</beans>
